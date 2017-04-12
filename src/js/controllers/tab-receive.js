@@ -20,7 +20,12 @@ angular.module('copayApp.controllers').controller('tabReceiveController', functi
     $scope.generatingAddress = true;
     walletService.getAddress($scope.wallet, forceNew, function(err, addr) {
       $scope.generatingAddress = false;
-      if (err) popupService.showAlert(gettextCatalog.getString('Error'), bwcError.msg(err));
+
+      if (err) {
+        //Error is already formated
+        return popupService.showAlert(err);
+      }
+
       $scope.addr = addr;
       if ($scope.walletAddrs[$scope.wallet.id]) $scope.walletAddrs[$scope.wallet.id] = addr;
       $timeout(function() {
@@ -129,7 +134,7 @@ angular.module('copayApp.controllers').controller('tabReceiveController', functi
   $scope.updateCurrentWallet = function() {
     walletService.getStatus($scope.wallet, {}, function(err, status) {
       if (err) {
-        $log.error(err);
+        return popupService.showAlert(bwcError.msg(err, gettextCatalog.getString('Could not update wallet')));
       }
       $timeout(function() {
         $scope.wallet = profileService.getWallet($scope.wallet.id);
@@ -147,7 +152,6 @@ angular.module('copayApp.controllers').controller('tabReceiveController', functi
       $scope.loadAddresses(wallet);
     });
 
-
     listeners = [
       $rootScope.$on('bwsEvent', function(e, walletId, type, n) {
         // Update current address
@@ -156,7 +160,12 @@ angular.module('copayApp.controllers').controller('tabReceiveController', functi
     ];
 
     // Update current wallet
-    if ($scope.wallet) $scope.updateCurrentWallet();
+    if ($scope.wallet) {
+      var w = lodash.find($scope.wallets, function(w) {
+        return w.id == $scope.wallet.id;
+      });
+      if (w) $scope.updateCurrentWallet();
+    }
   });
 
   $scope.$on("$ionicView.leave", function(event, data) {

@@ -33,7 +33,7 @@ angular.module('copayApp.controllers').controller('joinController',
       }
     };
 
-    this.onQrCodeScanned = function(data) {
+    this.onQrCodeScannedJoin = function(data) {
       $scope.secret = data;
       if ($scope.joinForm) {
         $scope.joinForm.secret.$setViewValue(data);
@@ -44,7 +44,7 @@ angular.module('copayApp.controllers').controller('joinController',
     if ($stateParams.url) {
       var data = $stateParams.url;
       data = data.replace('copay:', '');
-      this.onQrCodeScanned(data);
+      this.onQrCodeScannedJoin(data);
     }
 
     var updateSeedSourceSelect = function() {
@@ -169,9 +169,7 @@ angular.module('copayApp.controllers').controller('joinController',
             return;
           }
 
-          walletService.updateRemotePreferences(client, {}, function() {
-            $log.debug('Remote preferences saved for:' + client.credentials.walletId)
-          });
+          walletService.updateRemotePreferences(client);
           $ionicHistory.removeBackView();
 
           if (!client.isComplete()) {
